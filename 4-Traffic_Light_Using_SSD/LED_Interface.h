@@ -1,7 +1,7 @@
 /*************************************************************/
 /*************************************************************/
 /**                                                         **/
-/**  LayerArchitecture : APP                                **/
+/**  LayerArchitecture : HAL                                **/
 /** File Name : LED_interface.h                             **/
 /** Auther    : MOHAMED BEDIER MOHAMED                      **/
 /** Verision :  1.00                                        **/
@@ -33,20 +33,36 @@
  					 7-DIO_u8PIN6
  					 8-DIO_u8PIN7
  				                    				  */
-
+/**
+ * @brief: this is the configuration struct for LED
+ */
 
 typedef struct
 {
 	uint8 LED_u8ConnectionType;
 	uint8 LED_u8PORT;
 	uint8 LED_u8PIN;
-}LED_Struct;
+}LED_Config_t;
 
 
-
-uint8  LED_u8LedTurnON(LED_Struct *puFrom_LED_Struct);
-uint8  LED_u8LedTurnOff(LED_Struct *puFrom_LED_Struct);
-
+/**
+ * @brief: this function is used to Configure LED on
+ * @param puFrom_LED_Struct : this is a pointer of struct which carrying LED configuration
+ * @return: Local_u8ErrorState : this variable to carry error state value
+ */
+uint8  LED_u8LedTurnON(LED_Config_t *puFrom_LED_Config);
+/**
+ * @brief: this function is used to Configure LED OFF
+ * @param puFrom_LED_Struct : this is a pointer of struct which carrying LED configuration
+ * @return: Local_u8ErrorState : this variable to carry error state value
+ */
+uint8  LED_u8LedTurnOff(LED_Config_t *puFrom_LED_Config);
+/**
+ * @brief: this function is used to Configure LED as toggling
+ * @param puFrom_LED_Struct : this is a pointer of struct which carrying LED configuration
+ * @return: Local_u8ErrorState : this variable to carry error state value
+ */
+uint8 LED_u8LEDToggle(LED_Config_t *puFrom_LED_Config);
 
 
 

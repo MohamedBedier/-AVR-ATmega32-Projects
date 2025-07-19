@@ -12,6 +12,7 @@
 /* Include our libraries  */
 #include "STD_TYPES.h"
 #include "BIT_MATH.h"
+#include "defines.h"
 #include <util/delay.h>
 
 
@@ -19,140 +20,135 @@
 #include "SSD_Cfg.h"
 #include "SSD_Interface.h"
 
-#include "LED_Private.h"
 #include "LED_Cfg.h"
+#include "LED_Private.h"
 #include "LED_Interface.h"
 
 #include "DIO_Interfce.h"
 #include "PORT_Interface.h"
 
 
-//uint8 SSD_u8Comm_Cathod_Arr[10] = SSD_NUMBER_ARR;
-uint8 SSD_u8Comm_Cathod_Arr[10] = { NUMBER0 , NUMBER1 , NUMBER2 , NUMBER3 , NUMBER4 , NUMBER5 , NUMBER6 , NUMBER7 , NUMBER8 , NUMBER9 };
+/* define the left SSD display as common cathode , connected on PORTA , the enable of it on PA7 */
+SSD_Config_t SSDL_t ={SSD_COMMON_CATHODE,DIO_u8PORTA,DIO_u8PORTA,DIO_u8PIN7};
+/* define the Right SSD display as common cathode , connected on PORTB , the enable of it on PB7 */
+SSD_Config_t SSDR_t ={SSD_COMMON_CATHODE,DIO_u8PORTB,DIO_u8PORTB,DIO_u8PIN7};
 
-SSD_Struct SSDL_t ={SSD_COMMON_CATHODE,DIO_u8PORTC,DIO_u8PORTA,DIO_u8PIN0};
-SSD_Struct SSDR_t ={SSD_COMMON_CATHODE,DIO_u8PORTD,DIO_u8PORTA,DIO_u8PIN1};
+/* define the struct of Three led :---> LED_RED on PC0 , LED_YELLOW on PC1 , and LED_GREEN on PC0 and all as source connection */
+LED_Config_t  LED_RED = {SOURCE_CONNECTION , DIO_u8PORTC ,  DIO_u8PIN0};
+LED_Config_t  LED_YELLOW = {SOURCE_CONNECTION , DIO_u8PORTC ,  DIO_u8PIN1};
+LED_Config_t  LED_GREEN = {SOURCE_CONNECTION , DIO_u8PORTC ,  DIO_u8PIN2};
 
-LED_Struct  LED_RED = {SOURCE_CONNECTION , DIO_u8PORTA ,  DIO_u8PIN3};
-LED_Struct  LED_YELLOW = {SOURCE_CONNECTION , DIO_u8PORTA ,  DIO_u8PIN4};
-LED_Struct  LED_GREEN = {SOURCE_CONNECTION , DIO_u8PORTA ,  DIO_u8PIN5};
-
-
+/* there are the prototype of functions */
+void SSD_voidCountfromOneToFifteen(void);
+void SSD_voidCountfromOneToThree(void);
+void SSD_voidDeactiveSSLAndActiveSSDR(void);
 int main(void)
 {
-	/* Define variables */
-	sint32 Local_s32CountI , Local_s32CountJ ;
-
 	/* set Direction for PORTA , PORTB , PORTC , PORTD as o/p */
 	PORT_voidInit();
 
-	SSD_u8Display_ON(&SSDL_t);
-	SSD_u8Display_ON(&SSDR_t);
+	/* at the start of the system the three led off */
+	LED_u8LedTurnOff(&LED_RED);
+	LED_u8LedTurnOff(&LED_YELLOW);
+	LED_u8LedTurnOff(&LED_GREEN);
+
+	/* at the start of the system the two SSD off */
+	SSD_u8Display_OFF(&SSDL_t);
+	SSD_u8Display_OFF(&SSDR_t);
 
 	/* supper loop  */
 	while(1)
 	{
+		SSD_voidDeactiveSSLAndActiveSSDR();
 
-		/* this loop to count untill 0 to 9 for Red */
-		for(Local_s32CountI = 1 ; Local_s32CountI < 10 ;Local_s32CountI++)
-		{
-			/* RED LED IS ON */
-			LED_u8LedTurnON(&LED_RED);
+		/* RED LED IS ON , green and yellow off */
+		LED_u8LedTurnON(&LED_RED);
 
-			SSD_u8SetNumber(&SSDL_t,0);
-			SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
-			_delay_ms(1000);
+		/* at the start Red led on for 15 Sec for peaple walk and cross the street */
+		SSD_voidCountfromOneToFifteen();
 
-		}
-		/* this loop to count untill 10 to 15 for Red*/
-		for(Local_s32CountJ = 0 ; Local_s32CountJ < 6 ;Local_s32CountJ++)
-		{
-			/* RED LED IS ON */
-			LED_u8LedTurnON(&LED_RED);
-			SSD_u8SetNumber(&SSDL_t,1);
-			SSD_u8SetNumber(&SSDR_t,Local_s32CountJ);
-			_delay_ms(1000);
-		}
 
 		/* RED LED IS OFF */
 		LED_u8LedTurnOff(&LED_RED);
-		/* Set Left SSDL Is init again by 0  */
-		SSD_u8SetNumber(&SSDL_t,0);
-		/* Set Left SSDR Is init again by 0  */
-		SSD_u8SetNumber(&SSDR_t,0);
 
+		SSD_voidDeactiveSSLAndActiveSSDR();
 
-		/* this loop to count untill 0 to 3 for Yellow */
-		for(Local_s32CountI = 1 ; Local_s32CountI < 4 ;Local_s32CountI++)
-		{
-			/* Yellow LED IS ON */
-			LED_u8LedTurnON(&LED_YELLOW);
+		/* yellow LED IS ON , green and red off */
+		LED_u8LedTurnON(&LED_YELLOW);
 
-			SSD_u8SetNumber(&SSDL_t,0);
-			SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
-			_delay_ms(1000);
-		}
+		/* yellow led is on 3 sec to know people ready to stop */
+		SSD_voidCountfromOneToThree();
 
 		/* Yellow LED IS OFF */
 		LED_u8LedTurnOff(&LED_YELLOW);
-		/* Set Left SSDL Is init again by 0  */
-		SSD_u8SetNumber(&SSDL_t,0);
-		/* Set Left SSDR Is init again by 0  */
-		SSD_u8SetNumber(&SSDR_t,0);
 
 
-		/* this loop to count untill 0 to 9 for Green */
-		for(Local_s32CountI = 1 ; Local_s32CountI < 10 ;Local_s32CountI++)
-		{
-			/* Green LED IS ON */
-			LED_u8LedTurnON(&LED_GREEN);
-			SSD_u8SetNumber(&SSDL_t,0);
-			SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
-			_delay_ms(1000);
+		/* green LED IS ON , red and yellow off */
+		LED_u8LedTurnON(&LED_GREEN);
 
-		}
-		/* this loop to count untill 10 to 15 for Green*/
-		for(Local_s32CountJ = 0 ; Local_s32CountJ < 6 ;Local_s32CountJ++)
-		{
-			/* Green LED IS ON */
-			LED_u8LedTurnON(&LED_GREEN);
-			SSD_u8SetNumber(&SSDL_t,1);
-			SSD_u8SetNumber(&SSDR_t,Local_s32CountJ);
-			_delay_ms(1000);
-		}
+		/* green led is on 15 sec  */
+		SSD_voidCountfromOneToFifteen();
 
 		/* Green LED IS OFF */
 		LED_u8LedTurnOff(&LED_GREEN);
-		/* Set Left SSDL Is init again by 0  */
-		SSD_u8SetNumber(&SSDL_t,0);
-		/* Set Left SSDR Is init again by 0  */
-		SSD_u8SetNumber(&SSDR_t,0);
+
+		SSD_voidDeactiveSSLAndActiveSSDR();
 
 
+		/* yellow LED IS ON , green and red off */
+		LED_u8LedTurnON(&LED_YELLOW);
 
-		/* this loop to count untill 0 to 9 for Yellow */
-		for(Local_s32CountI = 1 ; Local_s32CountI < 4 ;Local_s32CountI++)
-		{
-			/* Yellow LED IS ON */
-			LED_u8LedTurnON(&LED_YELLOW);
-
-			SSD_u8SetNumber(&SSDL_t,0);
-			SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
-			_delay_ms(1000);
-		}
+		SSD_voidCountfromOneToThree();
 
 		/* Yellow LED IS OFF */
 		LED_u8LedTurnOff(&LED_YELLOW);
-		/* Set Left SSDL Is init again by 0  */
-		SSD_u8SetNumber(&SSDL_t,0);
-		/* Set Left SSDR Is init again by 0  */
-		SSD_u8SetNumber(&SSDR_t,0);
 
 	}
 }
 
 
+void SSD_voidCountfromOneToFifteen(void)
+{
+	/* Define variables */
+	sint32 Local_s32CountI , Local_s32CountJ ;
 
+	/* this loop to count untill 0 to 9 for Red */
+	for(Local_s32CountI = 1 ; Local_s32CountI < 10 ;Local_s32CountI++)
+	{
+		SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
+		_delay_ms(1000);
 
+	}
+	SSD_u8Display_ON(&SSDL_t);
+	/* this loop to count untill 10 to 15 for Red*/
+	for(Local_s32CountJ = 0 ; Local_s32CountJ < 6 ;Local_s32CountJ++)
+	{
+		SSD_u8SetNumber(&SSDL_t,1);
+		SSD_u8SetNumber(&SSDR_t,Local_s32CountJ);
+		_delay_ms(1000);
+	}
 
+}
 
+void SSD_voidCountfromOneToThree(void)
+{
+	/* Define variables */
+	sint32 Local_s32CountI ;
+
+	/* this loop to count untill 0 to 3 for Yellow */
+	for(Local_s32CountI = 1 ; Local_s32CountI < 4 ;Local_s32CountI++)
+	{
+		SSD_u8SetNumber(&SSDR_t, Local_s32CountI);
+		_delay_ms(1000);
+	}
+
+}
+
+void SSD_voidDeactiveSSLAndActiveSSDR(void)
+{
+	/* active the right SSD to count untill 9 again */
+	SSD_u8Display_ON(&SSDR_t);
+
+	/* deactive the left SSD to save power */
+	SSD_u8Display_OFF(&SSDL_t);
+}
