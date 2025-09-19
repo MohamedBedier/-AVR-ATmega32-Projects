@@ -82,7 +82,9 @@ uint8 DACS_SystemShutDown(SSD_Config_t *Copy_PS_SSD_Config)
 {
 	uint8 Local_u8ErrorState =OK ;
 
-	CLCD_voidSendCmd(1);
+	/* disable the CLCD */
+	CLCD_voidSendCmd(0x08);
+
 	if(Copy_PS_SSD_Config !=NULL)
 	{
 		SSD_u8Display_OFF(Copy_PS_SSD_Config);
@@ -261,14 +263,14 @@ uint32 AskAndTakeUserPassWordThenCheckIsValid(void)
 	{
 		CLCD_voidGoToXY(3,1);
 		CLCD_u8SendString("IN_VALID Pa");
-		_delay_ms(1000);
+		_delay_ms(700);
 		CLCD_voidSendCmd(1);
 
 		CLCD_voidGoToXY(0,0);
 		CLCD_u8SendString("Enter Pass Agian");
 		CLCD_voidGoToXY(0,1);
 		CLCD_u8SendString("LOOK to SSD");
-		_delay_ms(1000);
+		_delay_ms(700);
 
 		CLCD_voidSendCmd(1);
 		CLCD_voidGoToXY(0,0);
@@ -317,7 +319,7 @@ uint8 AskAndTakeUserPassWord_ThreeTimes_ThenCheckIsValid(SSD_Config_t *Copy_PS_S
 		}
 
 		/* password enter 3 times incorrect */
-		if(Local_u32PassWord != 2244 && Local_u32PassWord != 6688)
+		if(Local_u32PassWord == 1)
 		{
 			DACS_SystemShutDown(Copy_PS_SSD_Config);
 		}
